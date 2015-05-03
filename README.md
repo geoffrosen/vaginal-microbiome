@@ -1,5 +1,7 @@
 # pplacer-runner
 
+For some, phylosift (Darling et. al 2014) may be more appropriate. See it [here](https://github.com/gjospin/PhyloSift)
+
 The goal of this is to have an easy way to start a job running on a pipeline based on pplacer (Matsen et al. 2010).
 The only inputs needed:
   1. Unaligned demultiplexed, quality filtered, fasta file from your microbiome project
@@ -18,10 +20,9 @@ Here are the steps as I see them and as presented in Smith et al. 2012
 
 References:
 
-Matsen, F. A., Kodner, R. B., & Armbrust, E. V. (2010). pplacer: linear time maximum-likelihood and Bayesian phylogenetic 
-  placement of sequences onto a fixed reference tree. BMC Bioinformatics, 11, 538. http://doi.org/10.1186/1471-2105-11-538
+Darling, A. E., Jospin, G., Lowe, E., Matsen, F. a, Bik, H. M., & Eisen, J. a. (2014). PhyloSift: phylogenetic analysis of genomes and metagenomes. PeerJ, 2, e243. http://doi.org/10.7717/peerj.243
 
-Smith, B. C., McAndrew, T., Chen, Z., Harari, A., Barris, D. M., Viswanathan, S., … Burk, R. D. (2012). The cervical microbiome
-  over 7 years and a comparison of methodologies for its characterization. PLoS ONE, 7(7).
-  http://doi.org/10.1371/journal.pone.0040425
+Matsen, F. A., Kodner, R. B., & Armbrust, E. V. (2010). pplacer: linear time maximum-likelihood and Bayesian phylogenetic placement of sequences onto a fixed reference tree. BMC Bioinformatics, 11, 538. http://doi.org/10.1186/1471-2105-11-538
+
+Smith, B. C., McAndrew, T., Chen, Z., Harari, A., Barris, D. M., Viswanathan, S., … Burk, R. D. (2012). The cervical microbiome over 7 years and a comparison of methodologies for its characterization. PLoS ONE, 7(7). http://doi.org/10.1371/journal.pone.0040425
 

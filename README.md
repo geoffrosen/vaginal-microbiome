@@ -3,9 +3,11 @@
 For some, phylosift (Darling et. al 2014) may be more appropriate. See it [here](https://github.com/gjospin/PhyloSift)
 
 The goal of this is to have an easy way to start a job running on a pipeline based on pplacer (Matsen et al. 2010).
-The only inputs needed:
+The only inputs required will be:
   1. Unaligned demultiplexed, quality filtered, fasta file from your microbiome project
   2. A reference package
+
+Of course, there will be other optional inputs to do some other funcitons.
 
 The output will be an OTU table, appropriate for use in many programs.
 

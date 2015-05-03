@@ -18,7 +18,9 @@ Here are the steps as I see them and as presented in Smith et al. 2012 and in Sr
   4. Recombine the stockholm files and merge with the reference stockholm file
   5. Place the aligned files on to the reference tree
   6. Make an OTU table based on the full tree
-  
+
+Included in this package:
+  1. pplacer v1.1 for linux (python initializers were added and the file - update_refpkg.py was modified slightly)
 
 References:
 

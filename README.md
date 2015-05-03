@@ -11,7 +11,7 @@ Of course, there will be other optional inputs to do some other funcitons.
 
 The output will be an OTU table, appropriate for use in many programs.
 
-Here are the steps as I see them and as presented in Smith et al. 2012
+Here are the steps as I see them and as presented in Smith et al. 2012 and in Srinivasan et al. 2012
   1. Deduplicate the fasta file
   2. Split the fasta file
   3. Align the fasta files to stockholm files
@@ -28,3 +28,4 @@ Matsen, F. A., Kodner, R. B., & Armbrust, E. V. (2010). pplacer: linear time max
 
 Smith, B. C., McAndrew, T., Chen, Z., Harari, A., Barris, D. M., Viswanathan, S., … Burk, R. D. (2012). The cervical microbiome over 7 years and a comparison of methodologies for its characterization. PLoS ONE, 7(7). http://doi.org/10.1371/journal.pone.0040425
 
+Srinivasan, S., Hoffman, N. G., Morgan, M. T., Matsen, F. A., Fiedler, T. L., Hall, R. W., … Fredricks, D. N. (2012). Bacterial communities in women with bacterial vaginosis: High resolution phylogenetic analyses reveal relationships of microbiota to clinical criteria. PLoS ONE, 7(6). http://doi.org/10.1371/journal.pone.0037818

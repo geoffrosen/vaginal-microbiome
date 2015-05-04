@@ -16,10 +16,11 @@ or
 
 Note: paths can be relative
 
-The goal of this is to have an easy way to start a job running on a pipeline based on pplacer (Matsen et al. 2010).
+The goal of this is to have an easy way to run a job on pipeline based on pplacer (Matsen et al. 2010).
 The only inputs required will be:
   1. Unaligned demultiplexed, quality filtered, fasta file from your microbiome project
   2. A reference package
+  3. A config file (though a default one will be provided with the package)
 
 Of course, there will be other optional inputs to do some other funcitons.
 

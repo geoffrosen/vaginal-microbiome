@@ -6,6 +6,8 @@ Commands available:
 
   1. You can now update a refpkg fully (including modifying the cm, sto, and afa)
 
+Command:
+
      pplacerrunner.py -u /path/to/refpkg
 
 or

@@ -1,0 +1,3 @@
+pplacer:--mrca-class
+cmalign:--informat test
+pplacer:-test out

@@ -10,16 +10,25 @@ __description__ = '''This program will help to run pplacer \n\
 import argparse, logging, time, argparse, sys
 
 from classes import update_refpkg as cur
+from classes import config_parser as ccp
 
 def main(argv):
 	logger = make_log('pplacer-runner', 'pplacer-runner.log')
 	logger.info('Initiated with command: %s' % ' '.join(argv))
-	parser = argparse.ArgumentParser(description = __description__)
+	parser = argparse.ArgumentParser(description = __description__,\
+		epilog = 'Note: refpkg, alignment, and config files are required without --upgrade')
 	parser.add_argument('-u', '--upgrade', type=str, help='upgrade refpkg')
+	parser.add_argument('-r', '--refpkg', type=str, help = 'previously updated refpkg file path. if not upgraded use -u')
+	parser.add_argument('-f', '--fasta', type=str, help = 'unaligned fasta file path')
+	parser.add_argument('-c', '--config', type=str, help = 'configuration file path formatted as command:title argument')
 	args = parser.parse_args(argv[1:])
-	if hasattr(args, 'upgrade'):
+	if args.upgrade != None:
 		cur.update_refpkg_run(args.upgrade, logger)
-
+	elif args.refpkg == None or args.fasta == None or args.config == None:
+		parser.error('refpkg, fasta, and config are required')
+	else:
+		config_info = ccp.FullConfig(args.config)
+		print config_info
 
 def make_log(log_name, log_fp):
 	logger = logging.getLogger(log_name)

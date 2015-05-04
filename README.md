@@ -2,6 +2,18 @@
 
 For some, phylosift (Darling et. al 2014) may be more appropriate. See it [here](https://github.com/gjospin/PhyloSift)
 
+Commands available:
+
+  1. You can now update a refpkg fully (including modifying the cm, sto, and afa)
+
+     pplacerrunner.py -u /path/to/refpkg
+
+or
+
+     pplacerrunner.py --upgrade /path/to/refpkg
+
+Note: paths can be relative
+
 The goal of this is to have an easy way to start a job running on a pipeline based on pplacer (Matsen et al. 2010).
 The only inputs required will be:
   1. Unaligned demultiplexed, quality filtered, fasta file from your microbiome project

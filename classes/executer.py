@@ -2,6 +2,7 @@
    It will be a container, but will also have a method for
    executing and logging.'''
 
+import time, subprocess
 
 class Command(object):
 
@@ -28,16 +29,39 @@ class Command(object):
 		starter += [str(pos_opt) for pos_opt in self.__positional_opts]
 		return ' '.join(starter)
 
+	def execute(self, logger):
+		logger.info('Now performing: %s' % self.__title)
+		logger.info('Details: %s' % self.__description)
+		logger.info('Command as sent: %s' % self._built__command)
+		start_time = time.time()
+		try:
+			run_res = subprocess.check_output(self.__built_command, shell=True, stderr = subprocess.STDOUT)
+			logger.info(run_res)
+		except subprocess.CalledProcessError as e:
+			logger.warning('Error on %s' % e.cmd)
+			logger.warning('Details: %s' % e.output)
+		end_time = time.time()
+		logger.info('Runtime was %0.9f s' % (end_time-start_time))
+
 	def __str__(self):
 		out = 'Title: %s\n'\
 		'Description: %s\n'\
 		'Command: %s\n' % (self.__title, self.__description, self.__built_command)
 		return out
 
+def test():
+	print 'hello'
+
 class MultipleCommands(object):
 
 	def __init__(self):
 		self.__commands = []
+
+	def execute_all(self, logger, delete = True):
+		for item in self.__commands:
+			item.execute(logger)
+		if delete == True:
+			self.__commands = []
 
 	def append(self, title, description, command, named_opts, positional_opts):
 		#make sure positional_opts has one item

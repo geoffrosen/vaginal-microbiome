@@ -1,16 +1,15 @@
-import os, shutil, json
+import os, shutil, json, executer
 
-from pplacer.scripts.update_refpkg import main as json_modder
-
-def update_refpkg(refpkg_fp,logger):
+def update_refpkg_run(refpkg_fp,logger):
 
 	'''for some reason, the updater included with
 	   pplacer doesn't seem to be quite adequate
 	   so this is an attempt to more fully automate the process'''
 	
 	#preamble - set some variables
+	commands = executer.MultipleCommands()
 	oldfolder = '%s/old/' % refpkg_fp
-	json_fp = '%s/CONTENTS.json'
+	json_fp = '%s/CONTENTS.json'% refpkg_fp
 	replacements = {
 		'tree_file': 'tree',
 		'phylo_model_file': 'phylo_model',
@@ -48,19 +47,46 @@ def update_refpkg(refpkg_fp,logger):
 
 	#3. move cm, aligned fasta, and stockholm
 	for file_type, fp in fps.iteritems():
-		logger.info('Now moving the %s file to %s' % (file_type, oldfolder)
+		logger.info('Now moving the %s file to %s' % (file_type, oldfolder))
 		shutil.copy('%s/%s' % (refpkg_fp, fp), oldfolder)
 
 
 	#4. cmconvert the oldcm
-
+	commands.append('Change the cm format',\
+		'Move the cm to an upgraded format',\
+		'cmconvert',\
+		{'-o': '%s/%s' % (refpkg_fp, fps['cm'])},\
+		['%s%s' % (oldfolder, fps['cm'])])
 
 
 	#5. unalign the aligned fasta
+	fps['ufa'] = 'unaligned.fasta'
+
+	commands.append('Unalign the aligned fasta',\
+		'We have unalign the fasta to use it with the new cm',\
+		'esl-reformat',\
+		{'--informat': 'afa',\
+		'-o': '%s%s' % (oldfolder, fps['ufa'])},\
+		['fasta', '%s%s' % (oldfolder, fps['afa'])])
+		
 
 	#6. realign the fasta with the converted cm
-	# a. find the unaligned fasta and cm
-	# b. realign
+	commands.append('Now we realign the fasta',\
+		'We use the unaligned fasta and produce a pfam (sto)',\
+		'cmalign',\
+		{'--dnaout': '', '--outformat': 'Pfam',\
+		'-o': '%s/%s' % (refpkg_fp, fps['sto'])},\
+		['%s/%s' % (refpkg_fp, fps['cm']),\
+		'%s%s' % (oldfolder, fps['ufa'])])
 
 	#7. reformat the stockholm to afa
+	commands.append('Now we convert this stockholm back to the afa',\
+		'This was part of the original package, so we replace it',\
+		'esl-reformat',\
+		{'--informat': 'pfam',\
+		'-o': '%s/%s' % (refpkg_fp, fps['afa'])},\
+		['afa', '%s/%s' % (refpkg_fp, fps['sto'])])
+	
+	#8. execute all the above commands
+	commands.execute_all(logger)
 	

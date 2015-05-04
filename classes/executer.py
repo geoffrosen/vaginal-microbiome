@@ -32,7 +32,7 @@ class Command(object):
 	def execute(self, logger):
 		logger.info('Now performing: %s' % self.__title)
 		logger.info('Details: %s' % self.__description)
-		logger.info('Command as sent: %s' % self._built__command)
+		logger.info('Command as sent: %s' % self.__built_command)
 		start_time = time.time()
 		try:
 			run_res = subprocess.check_output(self.__built_command, shell=True, stderr = subprocess.STDOUT)

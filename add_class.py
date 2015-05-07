@@ -10,8 +10,7 @@ def main():
 	parser.add_argument('-s','--start-id',help='the id as labelled in the input file', required=True)
 	parser.add_argument('-e','--end-id',help='the id you want in the output file',required=True)
 	parser.add_argument('-c','--class-name',help='the class you want to be used',required=True)
-	parser.add_argument('-l','--lefse',help='prepare for lefse',action='store_true')
-	#there is some error going on in normalization right now
+	parser.add_argument('-l','--level',help='change depth of taxonomy',default=-1,type=int)
 	parser.add_argument('-n','--normalize',help='normalize by column',action='store_true',default=False)
 	parser.add_argument('--in-splitter',help='the splitter as the files come in',default=';')
 	parser.add_argument('--out-splitter',help='the splitter you want as the files go out',default='|')
@@ -33,7 +32,7 @@ def main():
 		i = 0
 		class_row = [args.class_name]
 		new_row = [args.end_id]
-		if args.lefse:
+		if args.level:
 			holder = Family(args.out_splitter)
 		for row in rr:
 			if i == 0:
@@ -53,7 +52,7 @@ def main():
 				ww.writerow(new_row)
 				i = 1
 			else:
-				if args.lefse:
+				if args.level:
 					this_name = row[-1].split(args.in_splitter)
 					for j in range(len(this_name)):
 						this_name[j] = this_name[j].strip()
@@ -61,8 +60,8 @@ def main():
 					holder.append(this_name,row[1:-1])
 				else:
 					ww.writerow(row)
-		if args.lefse:
-			for row in holder.out(normalize=args.normalize):
+		if args.level:
+			for row in holder.out(normalize=args.normalize,level=args.level):
 				ww.writerow(row)
 
 
@@ -89,7 +88,9 @@ class Clade(object):
 				self.__sub[split_name[1]] = Clade(self.__splitter)
 			self.__sub[split_name[1]].append(self.__splitter.join(split_name[1:]),incounts)
 
-	def out_array(self,par=False,normalize=False,parcounts=False):
+	def out_array(self,par=False,normalize=False,parcounts=False,level=-1):
+		if level == 0:
+			return []
 		if par:
 			my_name = '%s%s%s' % (par,self.__splitter,self.__name)
 		else:
@@ -117,7 +118,7 @@ class Clade(object):
 		else:
 			pass_counts = list(self.__counts)
 		for sub in self.__sub:
-			out += self.__sub[sub].out_array(my_name,normalize,list(pass_counts))
+			out += self.__sub[sub].out_array(my_name,normalize,list(pass_counts),level=level-1)
 		return out
 		
 		
@@ -128,17 +129,23 @@ class Family(object):
 	def __init__(self, splitter):
 		self.__sub = {}
 		self.__splitter = splitter
+		self.__counts = None
 
 	def append(self, name, incounts):
 		child_name = name.split(self.__splitter)[0]
 		if child_name not in self.__sub:
 			self.__sub[child_name] = Clade(self.__splitter)
 		self.__sub[child_name].append(name,incounts)
+		if not self.__counts:
+			self.__counts = list(map(float,incounts))
+		else:
+			for i in range(len(incounts)):
+				self.__counts[i] += float(incounts[i])
 
-	def out(self,normalize=False):
+	def out(self,normalize=False,level=-1):
 		out = []
 		for sub in self.__sub:
-			out += self.__sub[sub].out_array(normalize=normalize)
+			out += self.__sub[sub].out_array(normalize=normalize,parcounts=list(self.__counts),level=level)
 		return out
 
 if __name__ == '__main__':

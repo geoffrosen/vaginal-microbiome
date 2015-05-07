@@ -1,4 +1,4 @@
-# pplacer-runner
+# vaginal-microbiome
 
 For some, phylosift (Darling et. al 2014) may be more appropriate. See it [here](https://github.com/gjospin/PhyloSift)
 
@@ -13,6 +13,13 @@ Command:
 or
 
      pplacerrunner.py --upgrade /path/to/refpkg
+
+  2. You can now add a class to your otu table and modify it for lefse usage and normalize by copy number with add_class.py
+
+Command:
+
+     add_class.py -i /input/file -o /output/file -m /map/file -s start_id -e end_id -c class_name [-l -n --in-splitter ";" --out-splitter "|"
+
 
 Note: paths can be relative
 

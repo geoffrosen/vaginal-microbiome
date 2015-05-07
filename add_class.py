@@ -14,6 +14,7 @@ def main():
 	parser.add_argument('-n','--normalize',help='normalize by column',action='store_true',default=False)
 	parser.add_argument('--in-splitter',help='the splitter as the files come in',default=';')
 	parser.add_argument('--out-splitter',help='the splitter you want as the files go out',default='|')
+	parser.add_argument('--otu-min',help='the minimum (as a decimal for normalize or count number) for an otu to be included',default=float(0),type=float)
 	args = parser.parse_args()
 	with open(args.input_table_fp,'rb') as r, open(args.map_fp,'rb') as m,  open(args.output_fp,'wb') as w:
 		rr = csv.reader(r,delimiter='\t')
@@ -61,7 +62,8 @@ def main():
 				else:
 					ww.writerow(row)
 		if args.level:
-			for row in holder.out(normalize=args.normalize,level=args.level):
+			otu_min = args.otu_min * float(len(class_row))
+			for row in holder.out(normalize=args.normalize,level=args.level,minimum=otu_min):
 				ww.writerow(row)
 
 
@@ -88,7 +90,7 @@ class Clade(object):
 				self.__sub[split_name[1]] = Clade(self.__splitter)
 			self.__sub[split_name[1]].append(self.__splitter.join(split_name[1:]),incounts)
 
-	def out_array(self,par=False,normalize=False,parcounts=False,level=-1):
+	def out_array(self,par=False,normalize=False,parcounts=False,level=-1,minimum=0):
 		if level == 0:
 			return []
 		if par:
@@ -112,13 +114,15 @@ class Clade(object):
 						
 		else:
 			my_counts = self.__counts
+		if sum(my_counts) < minimum:
+			return []
 		out = [[my_name] + my_counts]
 		if parcounts:
 			pass_counts = list(parcounts)
 		else:
 			pass_counts = list(self.__counts)
 		for sub in self.__sub:
-			out += self.__sub[sub].out_array(my_name,normalize,list(pass_counts),level=level-1)
+			out += self.__sub[sub].out_array(my_name,normalize,list(pass_counts),level=level-1,minimum=minimum)
 		return out
 		
 		
@@ -142,10 +146,10 @@ class Family(object):
 			for i in range(len(incounts)):
 				self.__counts[i] += float(incounts[i])
 
-	def out(self,normalize=False,level=-1):
+	def out(self,normalize=False,level=-1,minimum=float(0)):
 		out = []
 		for sub in self.__sub:
-			out += self.__sub[sub].out_array(normalize=normalize,parcounts=list(self.__counts),level=level)
+			out += self.__sub[sub].out_array(normalize=normalize,parcounts=list(self.__counts),level=level,minimum=minimum)
 		return out
 
 if __name__ == '__main__':

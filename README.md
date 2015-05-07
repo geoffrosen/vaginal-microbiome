@@ -14,15 +14,15 @@ or
 
      pplacerrunner.py --upgrade /path/to/refpkg
 
-  2. You can now add a class to your otu table and modify it for lefse usage and normalize by copy number with add_class.py
+  2. You can now add a class to your otu table and modify it for lefse usage and normalize by copy number with modify_otu_table.py
 
 Command:
 
-     add_class.py -i /input/file -o /output/file -m /map/file -s start_id -e end_id -c class_name [-l -n --in-splitter ";" --out-splitter "|"]
+     modify_otu_table.py -i /input/file -o /output/file -m /map/file -s start_id -e end_id -c class_name [-l -n --in-splitter ";" --out-splitter "|"]
 
 To see all commands:
 
-     add_class.py -h
+     modify_otu_table.py -h
 
 
 Note: paths can be relative

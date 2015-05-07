@@ -20,6 +20,10 @@ Command:
 
      add_class.py -i /input/file -o /output/file -m /map/file -s start_id -e end_id -c class_name [-l -n --in-splitter ";" --out-splitter "|"]
 
+To see all commands:
+
+     add_class.py -h
+
 
 Note: paths can be relative
 

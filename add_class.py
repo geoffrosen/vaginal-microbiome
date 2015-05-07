@@ -112,8 +112,12 @@ class Clade(object):
 		else:
 			my_counts = self.__counts
 		out = [[my_name] + my_counts]
+		if parcounts:
+			pass_counts = list(parcounts)
+		else:
+			pass_counts = list(self.__counts)
 		for sub in self.__sub:
-			out += self.__sub[sub].out_array(my_name,normalize,list(self.__counts))
+			out += self.__sub[sub].out_array(my_name,normalize,list(pass_counts))
 		return out
 		
 		

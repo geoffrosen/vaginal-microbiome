@@ -12,6 +12,8 @@ def main():
 	parser.add_argument('-c','--class-name',help='the class you want to be used',required=True)
 	parser.add_argument('-l','--level',help='change depth of taxonomy',default=-1,type=int)
 	parser.add_argument('-n','--normalize',help='normalize by column',action='store_true',default=False)
+	#need to think through how bottom will work with level. maybe can only have one
+	parser.add_argument('-b','--bottom',help='will only return the bottom listing (with above heirarchy)',default=False,action='store_true')
 	parser.add_argument('--in-splitter',help='the splitter as the files come in',default=';')
 	parser.add_argument('--out-splitter',help='the splitter you want as the files go out',default='|')
 	parser.add_argument('--otu-min',help='the minimum (as a decimal for normalize or count number) for an otu to be included',default=float(0),type=float)
@@ -55,6 +57,7 @@ def main():
 			else:
 				if args.level:
 					this_name = row[-1].split(args.in_splitter)
+					this_name = filter(None, this_name)
 					for j in range(len(this_name)):
 						this_name[j] = this_name[j].strip()
 					this_name = args.out_splitter.join(this_name)
@@ -62,8 +65,11 @@ def main():
 				else:
 					ww.writerow(row)
 		if args.level:
-			otu_min = args.otu_min * float(len(class_row))
-			for row in holder.out(normalize=args.normalize,level=args.level,minimum=otu_min):
+			if args.normalize:
+				otu_min = args.otu_min * float(len(class_row) - 1)
+			else:
+				otu_min = args.otu_min * float(holder.sum_counts())
+			for row in holder.out(normalize=args.normalize,level=args.level,minimum=otu_min,bottom=args.bottom):
 				ww.writerow(row)
 
 
@@ -90,7 +96,7 @@ class Clade(object):
 				self.__sub[split_name[1]] = Clade(self.__splitter)
 			self.__sub[split_name[1]].append(self.__splitter.join(split_name[1:]),incounts)
 
-	def out_array(self,par=False,normalize=False,parcounts=False,level=-1,minimum=0):
+	def out_array(self,par=False,normalize=False,parcounts=False,level=-1,minimum=0,bottom=False):
 		if level == 0:
 			return []
 		if par:
@@ -121,8 +127,9 @@ class Clade(object):
 			pass_counts = list(parcounts)
 		else:
 			pass_counts = list(self.__counts)
-		for sub in self.__sub:
-			out += self.__sub[sub].out_array(my_name,normalize,list(pass_counts),level=level-1,minimum=minimum)
+		if not bottom:
+			for sub in self.__sub:
+				out += self.__sub[sub].out_array(my_name,normalize,list(pass_counts),level=level-1,minimum=minimum,bottom=bottom)
 		return out
 		
 		
@@ -146,10 +153,13 @@ class Family(object):
 			for i in range(len(incounts)):
 				self.__counts[i] += float(incounts[i])
 
-	def out(self,normalize=False,level=-1,minimum=float(0)):
+	def sum_counts(self):
+		return sum(self.__counts)
+
+	def out(self,normalize=False,level=-1,minimum=float(0),bottom=False):
 		out = []
 		for sub in self.__sub:
-			out += self.__sub[sub].out_array(normalize=normalize,parcounts=list(self.__counts),level=level,minimum=minimum)
+			out += self.__sub[sub].out_array(normalize=normalize,parcounts=list(self.__counts),level=level,minimum=minimum,bottom=bottom)
 		return out
 
 if __name__ == '__main__':

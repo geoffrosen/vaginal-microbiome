@@ -17,7 +17,8 @@ def redup(input_csv, output_csv, dedup_fp):
 		for [orig, dup, num] in r:
 			if orig not in dups:
 				dups[orig] = []
-			dups[orig].append(dup)
+			if orig != dup:
+				dups[orig].append(dup)
 	with open(input_csv,'rb') as incsv, open(output_csv,'wb') as outcsv:
 		r = csv.reader(incsv,delimiter=',')
 		w = csv.writer(outcsv,delimiter=',')
@@ -27,6 +28,7 @@ def redup(input_csv, output_csv, dedup_fp):
 				i = 1
 				w.writerow(row)
 			else:
+				print dups[row[0]]
 				for other in dups[row[0]]:
 					w.writerow([other] + row[1:])
 				w.writerow(row)

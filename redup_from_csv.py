@@ -28,7 +28,6 @@ def redup(input_csv, output_csv, dedup_fp):
 				i = 1
 				w.writerow(row)
 			else:
-				print dups[row[0]]
 				for other in dups[row[0]]:
 					w.writerow([other] + row[1:])
 				w.writerow(row)

@@ -68,7 +68,7 @@ def main():
 			else:
 				if args.level:
 					if args.no_split:
-						this_name = [row[-1]]
+						this_name = ['_'.join(row[-1].split(' '))]
 					else:
 						this_name = row[-1].split(args.in_splitter)
 						this_name = filter(None, this_name)

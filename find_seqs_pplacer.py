@@ -16,6 +16,7 @@ def main():
 def get_seqs(input_fp, otu_names, level):
 	seq_ids = []
 	i = 0
+	# should probably combine functions and just write as we go
 	with open(input_fp,'rb') as f:
 		r = csv.reader(f,delimiter=',')
 		for row in r:

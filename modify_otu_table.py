@@ -15,11 +15,15 @@ def main():
 	parser.add_argument('-n','--normalize',help='normalize by column',action='store_true',default=False)
 	#need to think through how bottom will work with level. maybe can only have one
 	parser.add_argument('-b','--bottom',help='will only return the bottom listing (with above heirarchy in name)',default=False,action='store_true')
+	parser.add_argument('--suffix',help='suffix on samples. this suffix will be removed in order to search for info',action='store_true')
 	parser.add_argument('--no-split',help='will use the terms directly as input',default=False,action='store_true')
+	parser.add_argument('--merge-names',help='merge first col and last col',default=False,action='store_true')
 	parser.add_argument('--in-splitter',help='the splitter as the files come in',default=';')
 	parser.add_argument('--out-splitter',help='the splitter you want as the files go out',default='|')
 	parser.add_argument('--otu-min',help='the minimum (as a decimal for normalize or count number) for an otu to be included',default=float(0),type=float)
 	args = parser.parse_args()
+	if args.suffix:
+		args.suffix = "-hit-keg-mpt-cop-nul-nve-nve"
 	with open(args.input_table_fp,'rb') as r, open(args.map_fp,'rb') as m,  open(args.output_fp,'wb') as w:
 		rr = csv.reader(r,delimiter='\t')
 		ww = csv.writer(w,delimiter='\t')
@@ -48,8 +52,15 @@ def main():
 		for row in rr:
 			if i == 0:
 				for item in row[1:]:
+					if args.suffix:
+						try:
+							nom = item.replace(args.suffix,'')
+						except:
+							nom = item
+					else:
+						nom = item
 					try:
-						this_info = mapper[item]
+						this_info = mapper[nom]
 					except:
 						if len(row) - row.index(item) > 2:
 							print 'failed because mapper didn\'t contain %s' % item
@@ -68,7 +79,10 @@ def main():
 			else:
 				if args.level:
 					if args.no_split:
-						this_name = ['_'.join(row[-1].split(' '))]
+						if args.merge_names:
+							this_name = ['_'.join(row[0].split(' ') + row[-1].split(' '))]
+						else:
+							this_name = ['_'.join(row[-1].split(' '))]
 					else:
 						this_name = row[-1].split(args.in_splitter)
 						this_name = filter(None, this_name)

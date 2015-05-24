@@ -86,6 +86,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 
 
 	#Align the fasta to stockholm files
+	# I need to save the output from cmalign differently
 	for split_fasta_gz in os.listdir(split_fastas_folder):
 		commands.append('Decompress one of the fasta files',
 				'decompress one file in preparation for alignment',
@@ -132,6 +133,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 	os.mkdir(trees_folder)
 
 	#Place the aligned files on the tree
+	# The output from pplacer needs to be saved differently
 	for merged_sto_gz in os.listdir(merged_stos_folder):
 		commands.append('Decompress one of the merged sto files',
 				'decompress one file in preparation for pplacing',
@@ -160,6 +162,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 		commands.append('Decompress one of the jplace tree files',
 				'decompress one file in preparation for classification',
 				'gunzip',{},[trees_folder + '/' + tree_gz])
+		tree_fp = tree_gz[0:-3]
 		commands.append('Classify the seqs from the tree','classify the seqs from the tree',
 				'guppy classify',{'--sqlite': sql_fp, '-c': refpkg_fp},
 				['--pp', '--mrca-class', trees_folder + '/' + tree_fp])

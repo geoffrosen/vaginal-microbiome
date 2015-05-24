@@ -21,7 +21,7 @@ def redup(input_csv, output_csv, dedup_fp):
 				dups[orig].append(dup)
 	with open(input_csv,'rb') as incsv, open(output_csv,'wb') as outcsv:
 		r = csv.reader(incsv,delimiter=',')
-		w = csv.writer(outcsv,delimiter=',')
+		w = csv.writer(outcsv,delimiter=',',lineterminator='\n')
 		i = 0
 		for row in r:
 			if i == 0:

@@ -11,6 +11,7 @@ import argparse, logging, time, argparse, sys
 
 from classes import update_refpkg as cur
 from classes import config_parser as ccp
+from classes import run_pplacer_pipeline as rpp
 
 def main(argv):
 	logger = make_log('pplacer-runner', 'pplacer-runner.log')
@@ -24,6 +25,8 @@ def main(argv):
 	args = parser.parse_args(argv[1:])
 	if args.upgrade != None:
 		cur.update_refpkg_run(args.upgrade, logger)
+	elif args.refpkg != None and args.fasta != None:
+		rpp.run_pplacer_pipeline(args.refpkg, args.fasta, logger)
 	elif args.refpkg == None or args.fasta == None or args.config == None:
 		parser.error('refpkg, fasta, and config are required')
 	else:

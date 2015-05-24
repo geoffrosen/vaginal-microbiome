@@ -47,7 +47,9 @@ Here are the steps as I see them and as presented in Smith et al. 2012 and in Sr
   7. Make an OTU table based on the full tree
 
 Included in this package:
-  1. pplacer v1.1 for linux (python initializers were added and the file - update_refpkg.py was modified slightly)
+  1. pplacer v1.1 for linux 
+  2. mubiomics (available [here](https://github.com/benjsmith/mubiomics))
+  3. infernal v1.1.1 for linux (available [here](http://infernal.janelia.org/)). This was made on a qiime virtualbox v 1.9
 
 References:
 

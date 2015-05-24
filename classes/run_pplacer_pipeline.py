@@ -12,25 +12,42 @@ import os, shutil, executer
   7. Make an OTU table based on the full tree
   '''
 
-def run_pplacer_pipeline(refpkg_fp, fasta_fp, config, logger, threads = 4):
+def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 4):
 	
 	#set some variables
 	commands = executer.MultipleCommands()
-	dedup_fp = 
-	dedup_fasta_fp = 
-	splitter = 
-	split_fastas_folder = 
-	aligned_stos_folder = 
-	parallel_jobs = 
-	cm_fp = 
-	merged_stos_folder = 
-	ref_sto_fp = 
-	trees_folder = 
-	sql_fp = 
-	dedup_csv_fp = 
-	redup_csv_fp = 
+	dedup_fp = 'reads.dedup'
+	dedup_fasta_fp = 'dedup_fastas'
+	splitter = '_'
+	split_fastas_folder = 'split_fastas'
+	aligned_stos_folder = 'aligned_stos'
+	parallel_jobs = threads
+	merged_stos_folder = 'merged_stos'
+	trees_folder = 'dedup_trees'
+	sql_fp = 'dedup.db'
+	dedup_csv_fp = 'dedup_tax_assignment.tsv'
+	redup_csv_fp = 'tax_assignment.tsv'
 	tax_level = 'species'
-	otu_table_fp = 
+	otu_table_fp = 'otu_table.tsv'
+
+	# There are a couple of files that need to be found in the refpkg folder - it might be better to do this with json
+	cm_fp = False
+	ref_sto_fp = False
+	for f in os.listdir(refpkg_fp):
+		if f.endswith('.cm'):
+			cm_fp = refpkg_fp + '/' + f
+		elif f.endswith('.sto'):
+			ref_sto_fp = refpkg_fp + '/' + f
+	if not cm_fp and ref_sto_fp:
+		logger.warning('refpkg does not contain cm (ending with .cm) and aligned sto (ending with .sto)')
+		raise TypeError('refpkg does not contain cm (ending with .cm) and aligned sto (ending with .sto)')
+
+	# Let's reset the path so the pakaged files are used
+	base_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + '/bin'
+	bin_dirs = ['infernal/binaries/', 'mubiomics/scripts/', 'pplacer/', 'pplacer/scripts']
+	for bin_dir in bin_dirs:
+		os.environ['PATH'] = base_path + '/' + bin_dir + ':' + os.environ['PATH']
+	
 	
 	# Deduplicate the fasta file
 	commands.append('Deduplicate fasta file', 'deduplicate the fasta file so we don\'t place it multiple times',
@@ -47,7 +64,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, config, logger, threads = 4):
 
 	#Split the fasta based on the splitter
 	commands.append('Split the deduplicated fasta', 'split the deduplicated fasta so that we can do alignments in a timely manner',
-			'split_sequence_file_on_sample_ids.py',{'-i':dedup_fasta_fp,'--file_type': 'fasta', '-o': split_fastas_folder},[])
+			'split_sequence_file_on_sample_ids.py',{'-i':dedup_fasta_fp,'--file_type': 'fasta', '-o': split_fastas_folder},[''])
 
 	# Compress the deduplicated_fasta file
 	commands.append('Compress the deduplicated fasta file',
@@ -57,7 +74,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, config, logger, threads = 4):
 	# Compress the split fasta files
 	commands.append('Compress the deduplicated split fasta files',
 			'we will be going through each of these slowly, so we can compress them all for now',
-			'gzip',{},['-r',split_fastas_fp])
+			'gzip',{},['-r',split_fastas_folder])
 	
 
 	# Make a folder for the aligned stos
@@ -69,15 +86,15 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, config, logger, threads = 4):
 
 
 	#Align the fasta to stockholm files
-	for split_fasta_gz in os.listdir(split_fastas_fp):
+	for split_fasta_gz in os.listdir(split_fastas_folder):
 		commands.append('Decompress one of the fasta files',
 				'decompress one file in preparation for alignment',
 				'gunzip',{},[split_fastas_folder + '/' + split_fasta_gz])
 		split_fasta_fp = split_fasta_gz[0:-3]
-		split_sto_fp = '.'.join(split_fasta.split('.')[0:-1] + ['sto'])
+		split_sto_fp = '.'.join(split_fasta_fp.split('.')[0:-1] + ['sto'])
 		commands.append('Align this fasta file','align one fasta file to the refpkg',
 				'cmalign',{'--cpu': parallel_jobs,'--outformat': 'Pfam','-o': aligned_stos_folder + '/' + split_sto_fp},
-				['--dna', '-q', cm_fp, split_fastas_folder + '/' + split_fasta_fp])
+				['--dna', cm_fp, split_fastas_folder + '/' + split_fasta_fp])
 		commands.append('Recompress the fasta file',
 				'recompress the fasta file, we won\'t use it again',
 				'gzip',{},[split_fastas_folder + '/' + split_fasta_fp])
@@ -119,8 +136,8 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, config, logger, threads = 4):
 		commands.append('Decompress one of the merged sto files',
 				'decompress one file in preparation for pplacing',
 				'gunzip',{},[merged_stos_folder + '/' + merged_sto_gz])
-		merged_sto_fp = aligned_sto_gz[0:-3]
-		tree_fp = split_sto_fp = '.'.join(split_fasta.split('.')[0:-1] + ['jplace'])
+		merged_sto_fp = merged_sto_gz[0:-3]
+		tree_fp = split_sto_fp = '.'.join(merged_sto_fp.split('.')[0:-1] + ['jplace'])
 		commands.append('Pplace the merged sto','pplace the merged sto onto the reference tree',
 				'pplacer',{'-o': trees_folder + '/' + tree_fp, '-c': refpkg_fp, '-j': parallel_jobs},
 				['-p', '--mrca-class', '--inform-prior', merged_stos_folder + '/' + merged_sto_fp])
@@ -129,14 +146,14 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, config, logger, threads = 4):
 				'gzip',{},[merged_stos_folder + '/' + merged_sto_fp])
 		commands.append('Compress the jplace file',
 				'compress the jplace file, we won\'t use it for a little while',
-				'gzip',{},[trees_folder + '/' + trees_fp])
+				'gzip',{},[trees_folder + '/' + tree_fp])
 
 	# Do the pplacing
 	commands.execute_all(logger)
 
 	# Make DB
 	commands.append('Make database', 'make the database that will hold the eventual classifications',
-			'rppr prep_db', {'--sqlite': sql_fp, '-c': refpkg_fp},[])
+			'rppr prep_db', {'--sqlite': sql_fp, '-c': refpkg_fp},[''])
 
 	#Classify seqs to DB
 	for tree_gz in os.listdir(trees_folder):
@@ -158,13 +175,15 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, config, logger, threads = 4):
 	#wanted to modify it so that I could control input and output
 	sql = "SELECT placement_names.name, taxa.tax_name, rank, pc.likelihood FROM placement_classifications AS pc INNER JOIN taxa ON pc.tax_id=taxa.tax_id INNER JOIN placement_names ON pc.placement_id=placement_names.placement_id WHERE rank=rank ORDER BY placement_names.name"
 	commands.append('Pull information from database', 'put the information into a csv',
-			'sqlite3',{},['-header','-csv', sql_fp, '"' + sql +'"', dedup_csv_fp])
+			'sqlite3',{},['-header','-csv', sql_fp, '"' + sql +'" > ', dedup_csv_fp])
 
 	# Redup csv
 	commands.append('Redup the csv', 'reduplicate the sequences from the csv file with the dedup file',
-			'redup_from_csv.py', {'-i': dedup_csv_fp, '-o': redup_csv_fp, '-d': dedup_fp},[])
+			'redup_from_csv.py', {'-i': dedup_csv_fp, '-o': redup_csv_fp, '-d': dedup_fp},[''])
 
 	#Make OTU Table
 	commands.append('Make OTU table', 'make an otu table to the specified level using the reduplicated csv',
-			'gcstripper.py', {'-i': redup_csv_fp, '-o': otu_table_fp, '-r': tax_level, '-s': splitter}, [])
+			'gcstripper.py', {'-i': redup_csv_fp, '-o': otu_table_fp, '-r': tax_level, '-s': splitter}, [''])
+	# execute the last commands
+	commands.execute_all(logger)
 

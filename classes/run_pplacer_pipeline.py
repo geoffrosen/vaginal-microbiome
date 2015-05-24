@@ -25,8 +25,8 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 	merged_stos_folder = 'merged_stos'
 	trees_folder = 'dedup_trees'
 	sql_fp = 'dedup.db'
-	dedup_csv_fp = 'dedup_tax_assignment.tsv'
-	redup_csv_fp = 'tax_assignment.tsv'
+	dedup_csv_fp = 'dedup_tax_assignment.csv'
+	redup_csv_fp = 'tax_assignment.csv'
 	tax_level = 'species'
 	otu_table_fp = 'otu_table.tsv'
 

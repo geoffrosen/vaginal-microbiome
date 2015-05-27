@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import argparse, csv, sys
+import argparse, sys, csv
 
 def main():
 	parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -19,18 +19,15 @@ def redup(input_csv, output_csv, dedup_fp):
 				dups[orig] = []
 			if orig != dup:
 				dups[orig].append(dup)
-	with open(input_csv,'rb') as incsv, open(output_csv,'wb') as outcsv:
-		r = csv.reader(incsv,delimiter=',')
-		w = csv.writer(outcsv,delimiter=',',lineterminator='\n')
-		i = 0
-		for row in r:
-			if i == 0:
-				i = 1
-				w.writerow(row)
-			else:
-				for other in dups[row[0]]:
-					w.writerow([other] + row[1:])
-				w.writerow(row)
+	with open(input_csv,'rU') as incsv, open(output_csv,'wb') as outcsv:
+		header = incsv.readline()
+		outcsv.write(header)
+		for row in incsv:
+			split_row = row.split(',')
+			for other in dups[split_row[0]]:
+				outcsv.write(','.join([other] + split_row[1:]))
+			outcsv.write(row)
+
 
 if __name__ == '__main__':
 	main()

@@ -29,6 +29,8 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 	redup_csv_fp = 'tax_assignment.csv'
 	tax_level = 'species'
 	otu_table_fp = 'otu_table.tsv'
+	cmalign_log_fp = 'cmalign.log'
+	pplacer_log_fp = 'pplacer.log'
 
 	# There are a couple of files that need to be found in the refpkg folder - it might be better to do this with json
 	cm_fp = False
@@ -95,7 +97,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 		split_sto_fp = '.'.join(split_fasta_fp.split('.')[0:-1] + ['sto'])
 		commands.append('Align this fasta file','align one fasta file to the refpkg',
 				'cmalign',{'--cpu': parallel_jobs,'--outformat': 'Pfam','-o': aligned_stos_folder + '/' + split_sto_fp},
-				['--dna', cm_fp, split_fastas_folder + '/' + split_fasta_fp])
+				['--dna', cm_fp, split_fastas_folder + '/' + split_fasta_fp, '>>', cmalign_log_fp])
 		commands.append('Recompress the fasta file',
 				'recompress the fasta file, we won\'t use it again',
 				'gzip',{},[split_fastas_folder + '/' + split_fasta_fp])
@@ -142,7 +144,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 		tree_fp = split_sto_fp = '.'.join(merged_sto_fp.split('.')[0:-1] + ['jplace'])
 		commands.append('Pplace the merged sto','pplace the merged sto onto the reference tree',
 				'pplacer',{'-o': trees_folder + '/' + tree_fp, '-c': refpkg_fp, '-j': parallel_jobs},
-				['-p', '--mrca-class', '--inform-prior', merged_stos_folder + '/' + merged_sto_fp])
+				['-p', '--mrca-class', '--inform-prior', merged_stos_folder + '/' + merged_sto_fp, '>>', pplacer_log_fp])
 		commands.append('Recompress the merged sto file',
 				'recompress the merged sto file, we won\'t use it again',
 				'gzip',{},[merged_stos_folder + '/' + merged_sto_fp])
@@ -186,7 +188,7 @@ def run_pplacer_pipeline(refpkg_fp, fasta_fp, logger, config = False, threads = 
 
 	#Make OTU Table
 	commands.append('Make OTU table', 'make an otu table to the specified level using the reduplicated csv',
-			'gcstripper.py', {'-i': redup_csv_fp, '-o': otu_table_fp, '-r': tax_level, '-s': splitter}, [''])
+			'otu_table_maker.py', {'-i': redup_csv_fp, '-o': otu_table_fp, '-r': tax_level, '-s': splitter}, [''])
 	# execute the last commands
 	commands.execute_all(logger)
 

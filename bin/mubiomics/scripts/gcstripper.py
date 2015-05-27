@@ -77,7 +77,7 @@ except OSError:
 
 print "Running..."
     
-inhandle = csv.reader(open(infile, "rU"), delimiter=',')#input file handle
+inhandle = csv.reader(open(infile, "rb"), delimiter=',')#input file handle
 outhandle = csv.writer(open(outpath, "wb"), dialect='excel', delimiter='\t')# output file handle
 
 tax_ranks = ["root", "below_root", "superkingdon", "phylum", "class", "subclass"

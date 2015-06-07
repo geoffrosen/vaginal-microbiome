@@ -1,5 +1,20 @@
 # vaginal-microbiome
 
+The script bin/custom_lefse/ppr.py is meant to help with the plotting of lefse res files
+
+1. The feature names are from qiime "k__Bacteria.p__Proteobacteria.c__Gammaproteobacteria.o__Pseudomonadales.f__Pseudomonadaceae.g__Pseudomonas.s__viridiflava"
+`ppr.py input.res output.png --qime-print "g s"`
+--"g s" will have the above as feature Pseudomonas viridiflava. If the feature does not have a g or an s, it will use the furthest to the right (so "k__Bacteria" will be "Bacteria"). 
+
+2. The feature names have been customized "Pseudomonas_viridiflava"
+`use command: ppr.py input.res output.png --remove "_" --repl " "`
+--this will work on both the feature names and the status names ("Status_Positive" will become "Status Positive")
+
+3. You want to italicize the feature names
+`ppr.py input.res output.png --italicize`
+
+All of these can be used together.
+
 For some, phylosift (Darling et. al 2014) may be more appropriate. See it [here](https://github.com/gjospin/PhyloSift)
 
 Commands available:

@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+## This is for removing seqs from a qiime otu file
+
 import argparse, csv
 
 def main():

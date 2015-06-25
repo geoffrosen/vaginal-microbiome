@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import argparse, os, logging, re
 
 from time import gmtime, strftime

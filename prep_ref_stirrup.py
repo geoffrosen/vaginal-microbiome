@@ -77,17 +77,21 @@ def change_ref_format(seqinfo_fp,taxtable_fp,unaligned_fp,output_fp):
 		for row in infasta:
 			if row[0] == '>':
 				keep_seq= False
-				starter = row[0:-1]
+				starter = row.rstrip()
 				this_info = seq_info[starter[1:]]
 				spec = False
 				genus = ''
 				if ' '.join(this_info) in species_holder:
 					spec = ' '.join(this_info)
+					if this_info[0] in genus_holder:
+						genus = this_info[0]
 				elif len(this_info) > 1:
 					for i in range(len(this_info)):
 						if ' '.join(this_info[i:]) in species_holder:
 							spec = ' '.join(this_info[i:])
 							genus = ' '.join(this_info[0:i])
+							if len(genus) == 0:
+								genus = this_info[0]
 				if spec:
 					ender = '|genus|%s|species|%s|\n' % (genus,spec)
 					outfasta.write(starter + ender)
